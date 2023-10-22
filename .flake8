@@ -3,8 +3,6 @@
 exclude =
     migrations,
     manage.py,
-    run_parsers.py,
-    send_emails.py,
 
 ignore =
     F405,
