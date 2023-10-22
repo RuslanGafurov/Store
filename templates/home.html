@@ -2,6 +2,11 @@
 {% load static %}
 
 
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+
 {% block css %}
     <link href="{% static 'vendor/css/home.css' %}" rel="stylesheet">
 {% endblock css %}
