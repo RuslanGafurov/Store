@@ -1,8 +1,15 @@
-from django.contrib import auth
-from django.shortcuts import render, HttpResponseRedirect
+from django.contrib import auth, messages
+from django.shortcuts import HttpResponseRedirect, render
 from django.urls import reverse
 
-from users.forms import UserLoginForm, UserRegistrationForm
+from users.forms import UserLoginForm, UserProfileForm, UserRegistrationForm
+
+__all__ = (
+    'user_login_view',
+    'user_registration_view',
+    'user_profile_view',
+    'user_logout_view',
+)
 
 
 def user_login_view(request):
@@ -26,8 +33,27 @@ def user_registration_view(request):
         form = UserRegistrationForm(data=request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Аккаунт успешно зарегистрирован')
             return HttpResponseRedirect(reverse('users:login'))
     else:
         form = UserRegistrationForm()
     context = {'form': form}
     return render(request, 'users/registration.html', context)
+
+
+def user_profile_view(request):
+    if request.method == 'POST':
+        form = UserProfileForm(instance=request.user, data=request.POST, files=request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Данные успешно изменены')
+            return HttpResponseRedirect(reverse('users:profile'))
+    else:
+        form = UserProfileForm(instance=request.user)
+    context = {'form': form}
+    return render(request, 'users/profile.html', context)
+
+
+def user_logout_view(request):
+    auth.logout(request)
+    return HttpResponseRedirect(reverse('products:home'))
