@@ -2,6 +2,7 @@ from django.db import models
 
 
 class Category(models.Model):
+    """Модель категорий товаров"""
     name = models.CharField(max_length=128, unique=True)
     description = models.TextField(null=True, blank=True)
 
@@ -15,6 +16,7 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    """Модель товаров"""
     name = models.CharField(max_length=256)
     description = models.TextField(null=True, blank=True)
     quantity = models.PositiveIntegerField(default=0)
