@@ -6,12 +6,12 @@ from products.models import Category, Product
 
 class HomePageView(TitleMixin, TemplateView):
     """Отображение домашней страницы"""
-    template_name = 'products/home.html'
+    template_name = 'home.html'
     title = 'Store'
 
 
 class ProductsPageView(TitleMixin, ListView):
-    """Отображение страницы с каталогом"""
+    """Отображение каталога товаров"""
     template_name = 'products/products.html'
     title = 'Store - Каталог'
     model = Product
