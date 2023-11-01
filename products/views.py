@@ -1,7 +1,16 @@
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
 from django.views.generic import ListView, TemplateView
 
 from common.views import TitleMixin
-from products.models import Category, Product
+from products.models import Category, Product, Basket
+
+__all__ = (
+    'HomePageView',
+    'ProductsPageView',
+    'basket_add',
+    'basket_remove',
+)
 
 
 class HomePageView(TitleMixin, TemplateView):
@@ -26,3 +35,25 @@ class ProductsPageView(TitleMixin, ListView):
         queryset = super(ProductsPageView, self).get_queryset()
         category_id = self.kwargs.get('category_id')
         return queryset.filter(category_id=category_id) if category_id else queryset
+
+
+@login_required
+def basket_add(request, product_id):
+    """Добавление товара в корзину"""
+    product = Product.objects.get(id=product_id)
+    baskets = Basket.objects.filter(user=request.user, product=product)
+    if not baskets.exists():
+        Basket.objects.create(user=request.user, product=product, quantity=1)
+    else:
+        basket = baskets.first()
+        basket.quantity += 1
+        basket.save()
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+@login_required
+def basket_remove(request, basket_id):
+    """Удаление товара из корзины"""
+    basket = Basket.objects.get(id=basket_id)
+    basket.delete()
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
