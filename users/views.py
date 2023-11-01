@@ -1,59 +1,54 @@
 from django.contrib import auth, messages
-from django.shortcuts import HttpResponseRedirect, render
-from django.urls import reverse
+from django.contrib.auth.views import LoginView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.http import HttpResponseRedirect
+from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView, UpdateView
 
+from common.views import TitleMixin
 from users.forms import UserLoginForm, UserProfileForm, UserRegistrationForm
+from users.models import User
 
 __all__ = (
-    'user_login_view',
-    'user_registration_view',
-    'user_profile_view',
-    'user_logout_view',
+    'LoginPageView',
+    'RegistrationPageView',
+    'ProfilePageView',
+    'logout_page_view',
 )
 
 
-def user_login_view(request):
-    if request.method == 'POST':
-        form = UserLoginForm(data=request.POST)
-        if form.is_valid():
-            username = request.POST['username']
-            password = request.POST['password']
-            user = auth.authenticate(username=username, password=password)
-            if user:
-                auth.login(request, user)
-                return HttpResponseRedirect(reverse('products:home'))
-    else:
-        form = UserLoginForm()
-    context = {'form': form}
-    return render(request, 'users/login.html', context)
+class LoginPageView(TitleMixin, SuccessMessageMixin, LoginView):
+    """Отображение авторизации пользователя"""
+    template_name = 'users/login.html'
+    form_class = UserLoginForm
+    title = 'Store - Авторизация'
+    success_message = 'Вход в аккаунт выполнен'
 
 
-def user_registration_view(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Аккаунт успешно зарегистрирован')
-            return HttpResponseRedirect(reverse('users:login'))
-    else:
-        form = UserRegistrationForm()
-    context = {'form': form}
-    return render(request, 'users/registration.html', context)
+class RegistrationPageView(TitleMixin, SuccessMessageMixin, CreateView):
+    """Отображение регистрации пользователя"""
+    template_name = 'users/registration.html'
+    form_class = UserRegistrationForm
+    model = User
+    title = 'Store - Регистрация'
+    success_message = 'Аккаунт успешно создан'
+    success_url = reverse_lazy('users:login')
 
 
-def user_profile_view(request):
-    if request.method == 'POST':
-        form = UserProfileForm(instance=request.user, data=request.POST, files=request.FILES)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Данные успешно изменены')
-            return HttpResponseRedirect(reverse('users:profile'))
-    else:
-        form = UserProfileForm(instance=request.user)
-    context = {'form': form}
-    return render(request, 'users/profile.html', context)
+class ProfilePageView(TitleMixin, SuccessMessageMixin, UpdateView):
+    """Отображение профиля пользователя"""
+    template_name = 'users/profile.html'
+    form_class = UserProfileForm
+    model = User
+    title = 'Store - Личный кабинет'
+    success_message = 'Данные успешно изменены'
+
+    def get_success_url(self):
+        return reverse_lazy('users:profile', kwargs={'pk': self.object.id})
 
 
-def user_logout_view(request):
+def logout_page_view(request):
+    """Выход из аккаунта с сообщением"""
     auth.logout(request)
+    messages.success(request, 'Выход из аккаунта выполнен')
     return HttpResponseRedirect(reverse('products:home'))
