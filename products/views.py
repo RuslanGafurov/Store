@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import ListView, TemplateView
 
 from common.views import TitleMixin
-from products.models import Category, Product, Basket
+from products.models import Basket, Category, Product
 
 __all__ = (
     'HomePageView',
