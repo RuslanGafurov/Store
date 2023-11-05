@@ -45,11 +45,6 @@ class ProfilePageView(TitleMixin, SuccessMessageMixin, UpdateView):
     title = 'Store - Личный кабинет'
     success_message = 'Данные успешно изменены'
 
-    def get_context_data(self, **kwargs):
-        context = super(ProfilePageView, self).get_context_data(**kwargs)
-        context['baskets'] = Basket.objects.filter(user=self.request.user)
-        return context
-
     def get_success_url(self):
         return reverse_lazy('users:profile', kwargs={'pk': self.object.id})
 
