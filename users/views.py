@@ -3,18 +3,19 @@ from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, TemplateView, UpdateView
 
 from common.views import TitleMixin
 from products.models import Basket
 from users.forms import UserLoginForm, UserProfileForm, UserRegistrationForm
-from users.models import User
+from users.models import EmailVerification, User
 
 __all__ = (
     'LoginPageView',
     'RegistrationPageView',
     'ProfilePageView',
     'logout_page_view',
+    'VerificationPageView',
 )
 
 
@@ -58,3 +59,21 @@ def logout_page_view(request):
     auth.logout(request)
     messages.success(request, 'Выход из аккаунта выполнен')
     return HttpResponseRedirect(reverse('products:home'))
+
+
+class VerificationPageView(TitleMixin, TemplateView):
+    """Отображение верификации пользователя"""
+    template_name = 'users/verification.html'
+    title = 'Store - Верификация'
+
+    def get(self, request, *args, **kwargs):
+        """Подтверждение верификации"""
+        user = User.objects.get(email=kwargs['email'])
+        code = kwargs['code']
+        verifications = EmailVerification.objects.filter(user=user, code=code)
+        if verifications.exists() and not verifications.first().is_expired():
+            user.is_verified_email = True
+            user.save()
+            return super(VerificationPageView, self).get(request, *args, **kwargs)
+        else:
+            HttpResponseRedirect(reverse('home'))
