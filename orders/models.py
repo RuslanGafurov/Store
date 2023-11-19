@@ -29,4 +29,3 @@ class Order(models.Model):
 
     def __str__(self):
         return f'Заказ №{self.id} для {self.last_name} {self.first_name}'
-
