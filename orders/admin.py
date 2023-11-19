@@ -7,9 +7,10 @@ from orders.models import Order
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'status')
     fields = (
-        'id', 'created',
+        ('status', 'id'),
         ('first_name', 'last_name'),
         ('email', 'address'),
-        'basket_history', 'status', 'initiator'
+        'basket_history',
+        ('created', 'initiator')
     )
     readonly_fields = ('id', 'created', 'initiator')
