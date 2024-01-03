@@ -23,6 +23,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products_images')
     price = models.DecimalField(max_digits=8, decimal_places=2)
     category = models.ForeignKey(to='products.Category', on_delete=models.CASCADE)
+    stripe_product_price_id = models.CharField(max_length=128, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Товар'
